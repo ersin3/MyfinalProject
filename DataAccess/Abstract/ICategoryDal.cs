@@ -1,16 +1,15 @@
-﻿using Entites.Concrete;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Entites.Concrete;
 
 namespace DataAccess.Abstract
 {
-    public  interface IProductDal:IEntityRepository<Product>
+     public interface ICategoryDal:IEntityRepository<Category>
     {
-        
        
-
+      
     }
 }

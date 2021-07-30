@@ -1,16 +1,19 @@
 ﻿using System;
 using Business.Concrete;
+using DataAccess.Concrete.EntityFramework;
 using DataAccess.Concrete.InMemory;
 
 namespace ConsoleUI
 {
+    //SOLID
     class Program
     {
-        static void Main(string[] args)
-        {
 
-            ProductManager productManager = new ProductManager(new InMemoryProductDal());
-            foreach (var product in productManager.GettAll())
+        static void Main(string[] args) 
+        {
+             
+            ProductManager productManager = new ProductManager(new EfProductDal());
+            foreach (var product in productManager.GetAllByCategory(2))
             {
                 Console.WriteLine(product.ProductName);
             }

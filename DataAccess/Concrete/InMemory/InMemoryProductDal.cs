@@ -3,6 +3,7 @@ using Entites.Concrete;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,12 +16,12 @@ namespace DataAccess.Concrete.InMemory
         {
             //oracledan çekicem,Postgres,MongoDb 
             _products = new List<Product> {
-                new Product{ProductId=1,CategoryId=1,ProductName="Masa",UnitPrice=25,UniteInStock=4},
-                new Product{ProductId=3,CategoryId=3,ProductName="sad",UnitPrice=25,UniteInStock=4},
-                new Product{ProductId=2,CategoryId=4,ProductName="klavye",UnitPrice=25,UniteInStock=4},
-                new Product{ProductId=4,CategoryId=1,ProductName="bilgisayar",UnitPrice=25,UniteInStock=4},
-                new Product{ProductId=5,CategoryId=3,ProductName="mouse",UnitPrice=25,UniteInStock=4},
-                new Product{ProductId=6,CategoryId=2,ProductName="lamba",UnitPrice=25,UniteInStock=4},
+                new Product{ProductId=1,CategoryId=1,ProductName="Masa",UnitPrice=25},
+                new Product{ProductId=3,CategoryId=3,ProductName="sad",UnitPrice=25},
+                new Product{ProductId=2,CategoryId=4,ProductName="klavye",UnitPrice=25},
+                new Product{ProductId=4,CategoryId=1,ProductName="bilgisayar",UnitPrice=25},
+                new Product{ProductId=5,CategoryId=3,ProductName="mouse",UnitPrice=25},
+                new Product{ProductId=6,CategoryId=2,ProductName="lamba",UnitPrice=25},
 
 
             };
@@ -39,9 +40,19 @@ namespace DataAccess.Concrete.InMemory
             _products.Remove(productToDelete);
         }
 
+        public Product Get(Expression<Func<Product, bool>> filter)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<Product> GetAll()
         {
             return _products;
+        }
+
+        public List<Product> GetAll(Expression<Func<Product, bool>> filter = null)
+        {
+            throw new NotImplementedException();
         }
 
         public List<Product> GetAllByCategory(int categoryId)
@@ -56,7 +67,7 @@ namespace DataAccess.Concrete.InMemory
             productToUpdate.ProductName = product.ProductName;
             productToUpdate.CategoryId = product.CategoryId;
             productToUpdate.UnitPrice = product.UnitPrice;
-            productToUpdate.UniteInStock = product.UniteInStock;
+            
         }
     }
 }
