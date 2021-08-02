@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Business.Constans;
+using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entites.Concrete;
 using Entites.DTOs;
@@ -19,32 +21,51 @@ namespace Business.Concrete
             _productDal = productDal;
         }
 
-        public IEnumerable<Product> GetAllByCategory()
+        public IResults add(Product product)
         {
-            throw new NotImplementedException();
+            //business codes
+            
+
+            if (product.ProductName.Length<2)
+            {
+                //magic strings
+                return new ErrorResult(Messages.ProductNameInvalid);
+            }
+            _productDal.Add(product); 
+
+            return new SuccessResult(Messages.ProductAdded);
         }
 
-        public List<Product> GetAllByCategory(int id)
+        public IDataResult<List<Product>> GetAllByCategory(int id)
         {
-            return _productDal.GetAll(p => p.CategoryId == id);
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.CategoryId == id));
         }
 
-        public List<Product> GetByUnitPrice(decimal min, decimal max)
+        public IDataResult<Product> GetById(int productId)
         {
-            return _productDal.GetAll(p => p.UnitPrice>=min && p.UnitPrice<=max);
+            return new SuccessDataResult<Product>(_productDal.Get(p=>p.ProductId==productId));
         }
 
-        public List<ProductDetailDto> GetProductDetail()
+        public IDataResult<List<Product>> GetByUnitPrice(decimal min, decimal max)
         {
-           return _productDal.GetProductDetail();
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.UnitPrice>=min && p.UnitPrice<=max));
         }
 
-        public List<Product> GettAll()
+        public IDataResult<List<ProductDetailDto>> GetProductDetail()
         {
+           
+            return new SuccessDataResult < List < ProductDetailDto >>(_productDal.GetProductDetail());
+        }
 
+        public IDataResult<List<Product>> GettAll()
+        {
+            if (DateTime.Now.Hour==16)
+            {
+                return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
+            }
             //İş Kodları
             // if(Yetkisi var mı similasyon yap)
-            return _productDal.GetAll();
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(),Messages.ProductListed);
         }
     }
 }
