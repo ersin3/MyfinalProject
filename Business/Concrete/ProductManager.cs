@@ -1,9 +1,12 @@
 ﻿using Business.Abstract;
 using Business.Constans;
+using Business.ValidationRules.FluentValidation;
+using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entites.Concrete;
 using Entites.DTOs;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,14 +26,16 @@ namespace Business.Concrete
 
         public IResults add(Product product)
         {
-            //business codes
-            
 
-            if (product.ProductName.Length<2)
-            {
-                //magic strings
-                return new ErrorResult(Messages.ProductNameInvalid);
-            }
+           ValidationTool.Validate(new ProductValidator(),product);
+            //loglama
+            //cacheremove
+            //performance
+            //transaction
+            //yetkilendirme
+
+            //business code
+            
             _productDal.Add(product); 
 
             return new SuccessResult(Messages.ProductAdded);
@@ -59,7 +64,7 @@ namespace Business.Concrete
 
         public IDataResult<List<Product>> GettAll()
         {
-            if (DateTime.Now.Hour==16)
+            if (DateTime.Now.Hour==20)
             {
                 return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
             }
