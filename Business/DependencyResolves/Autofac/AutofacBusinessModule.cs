@@ -14,12 +14,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Business.DependencyResolve.Autofac
+namespace Business.DependencyResolves.Autofac
 {
-    public class AutofacBussinessModule:Module
+    public class AutofacBusinessModule:Module
     {
         protected override void Load(ContainerBuilder builder)
-        {
+        {   //startup içine yazmaktansa buraya topla hepsini
+            // bri class bu objelerin new() ini isterse burası halledecek.
+            //autofac in çalışması için program.cs ye eklemen lazım
             builder.RegisterType<ProductManager>().As<IProductService>().SingleInstance();
             builder.RegisterType<EfProductDal>().As<IProductDal>().SingleInstance();
 
@@ -32,7 +34,7 @@ namespace Business.DependencyResolve.Autofac
             builder.RegisterType<AuthManager>().As<IAuthService>();
             builder.RegisterType<JwtHelper>().As<ITokenHelper>();
 
-
+            //builder.RegisterType<HttpContextAccessor>().As<IHttpContextAccessor>();
 
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
@@ -41,8 +43,6 @@ namespace Business.DependencyResolve.Autofac
                 {
                     Selector = new AspectInterceptorSelector()
                 }).SingleInstance();
-
-
         }
     }
 }
