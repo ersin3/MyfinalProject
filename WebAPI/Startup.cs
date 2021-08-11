@@ -41,7 +41,7 @@ namespace WebAPI
         {
            
             services.AddControllers();
-            services.AddAutoMapper(typeof(SubProductProfile).Assembly);
+            services.AddAutoMapper(typeof(SubProductProfile));
 
             //services.AddSingleton<IHttpContextAccessor,HttpContextAccessor>();
 

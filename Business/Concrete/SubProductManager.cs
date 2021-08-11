@@ -21,6 +21,12 @@ namespace Business.Concrete
             _SubProductDal = subProductDal;
         }
 
+        public IResult Add(SubProduct subproduct)
+        {
+
+            _SubProductDal.Add(subproduct);
+            return new SuccessResult(Messages.ProductAdded);
+        }
         public IDataResult<List<SubProduct>> GetAll()
         {
             return new SuccessDataResult<List<SubProduct>>(_SubProductDal.GetAll(), Messages.SubProductsListed);

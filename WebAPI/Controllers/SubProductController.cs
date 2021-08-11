@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using Business.Abstract;
+using Entities.Concrete;
 using Entities.WiewModel.Entities.WiewModel;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,22 +28,36 @@ namespace WebAPI.Controllers
         public IActionResult GetAll()
         {
 
-            // bağımlılık zinciri
+            // bağımlılık zinciri   
 
             var result = _subproductservice.GetAll();
-          //  var viewModel = _mapper.Map<SubProductViewModel>(result.Data);
+            var viewModel = _mapper.Map<IEnumerable<SubProductViewModel>>(result.Data);
             if (result.Success)
             {
-                return Ok(result.Data);
+                return Ok(viewModel);
             }
             else
             {
-                return BadRequest(result.Data);
+                return BadRequest(viewModel);
             }
 
         }
 
-     
+        [HttpPost("add")]
+        public IActionResult Add(SubProduct subProduct)
+        {
+
+            var result = _subproductservice.Add(subProduct);
+
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(result);
+            }
+        }
 
     }
 }
