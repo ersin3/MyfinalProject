@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Core.Utilities.Results;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Core.Utilities.Results;
 
 namespace Core.Utilities.Business
 {
-   public static class BusinessRules
-    {
-        public static IResults Run(params IResults[] logics)
+    public class BusinessRules
+    {   // params ile istediğin kadar parametre gönderebilirsin.
+        // check business rules method.
+        public static IResult Run(params IResult[] logics)
         {
             foreach (var logic in logics)
             {
@@ -18,8 +19,8 @@ namespace Core.Utilities.Business
                     return logic;
                 }
             }
-            return null;
 
+            return null;
         }
     }
 }

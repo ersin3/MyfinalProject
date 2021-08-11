@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    //IEntity impelemnt eden bir class veri tabanı tablosudur
+    // IEntity implement eden class bir veritabanı tablosudur
     public interface IEntity
     {
-
+        public int Id { get; set; }
     }
 }

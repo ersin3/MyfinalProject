@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.IoC
-{
+namespace Core.Utilities.IoC
+{   //Ioc - Inversion of controls
     public static class ServiceTool
     {
         public static IServiceProvider ServiceProvider { get; private set; }

@@ -5,13 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Core.Utilities.Results
-{
-    //Temel voidler için başlangıç
-  public  interface IResults
+{   // temel voidler için başlangıç
+    public interface IResult
     {
         bool Success { get; }
         string Message { get; }
-
-
+        //bool Failure { get; }
     }
 }

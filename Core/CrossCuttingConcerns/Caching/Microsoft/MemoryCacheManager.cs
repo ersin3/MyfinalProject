@@ -1,4 +1,4 @@
-﻿using Core.IoC;
+﻿using Core.Utilities.IoC;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
@@ -12,17 +12,15 @@ namespace Core.CrossCuttingConcerns.Caching.Microsoft
 {
     public class MemoryCacheManager : ICacheManager
     {
-        //Adapter Pattern
         IMemoryCache _memoryCache;
 
         public MemoryCacheManager()
         {
             _memoryCache = ServiceTool.ServiceProvider.GetService<IMemoryCache>();
         }
-
         public void Add(string key, object value, int duration)
         {
-            _memoryCache.Set(key, value, TimeSpan.FromMinutes(duration));
+            _memoryCache.Set(key,value,TimeSpan.FromMinutes(duration));
         }
 
         public T Get<T>(string key)
@@ -32,12 +30,12 @@ namespace Core.CrossCuttingConcerns.Caching.Microsoft
 
         public object Get(string key)
         {
-            return _memoryCache.Get(key);
+            return _memoryCache.Get(key); //tip dönüşümü üstteki daha kullanuşlı ama bu da uygun
         }
 
         public bool IsAdd(string key)
         {
-            return _memoryCache.TryGetValue(key,out _);
+            return _memoryCache.TryGetValue(key,out _); // out _  boş değer
         }
 
         public void Remove(string key)
@@ -46,7 +44,14 @@ namespace Core.CrossCuttingConcerns.Caching.Microsoft
         }
 
         public void RemoveByPattern(string pattern)
-        {
+        {   
+            // github dan alındı burası
+            // çalışma anında bellekten silmeye sağlıyor
+
+            //Entries collection u bellekte bulup her bir cache elemanını gez.
+            // aşağıdaki kurala uyan değerleri keysToRemove a alıp içini tek tek foreach ile gez key i uygun olanları kaldır.
+
+
             var cacheEntriesCollectionDefinition = typeof(MemoryCache).GetProperty("EntriesCollection", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var cacheEntriesCollection = cacheEntriesCollectionDefinition.GetValue(_memoryCache) as dynamic;
             List<ICacheEntry> cacheCollectionValues = new List<ICacheEntry>();
@@ -55,7 +60,7 @@ namespace Core.CrossCuttingConcerns.Caching.Microsoft
             {
                 ICacheEntry cacheItemValue = cacheItem.GetType().GetProperty("Value").GetValue(cacheItem, null);
                 cacheCollectionValues.Add(cacheItemValue);
-            } 
+            }
 
             var regex = new Regex(pattern, RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
             var keysToRemove = cacheCollectionValues.Where(d => regex.IsMatch(d.Key.ToString())).Select(d => d.Key).ToList();

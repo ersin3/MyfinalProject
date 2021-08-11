@@ -1,9 +1,9 @@
 using Business.Abstract;
 using Business.Concrete;
-using Core.DependecyResolvers;
+using Core.DependencyResolvers;
 using Core.Extensions;
-using Core.IoC;
-using Core.Utilities.Security.encryption;
+using Core.Utilities.IoC;
+using Core.Utilities.Security.Encryption;
 using Core.Utilities.Security.JWT;
 using DataAccess.Abstract;
 using DataAccess.Concrete.EntityFramework;
@@ -38,14 +38,11 @@ namespace WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //Autofac
-            //AOP
 
             services.AddControllers();
-            //services.AddSingleton<IProductService, ProductManager>();
-            //services.AddSingleton<IProductDal, EfProductDal>();
 
-            
+            //services.AddSingleton<IHttpContextAccessor,HttpContextAccessor>();
+
 
             var tokenOptions = Configuration.GetSection("TokenOptions").Get<TokenOptions>();
 
@@ -63,12 +60,19 @@ namespace WebAPI
                         IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
                     };
                 });
-            services.AddDependecyResolvers(new ICoreModule[] {
+            services.AddDependencyResolvers(new ICoreModule[] { new CoreModule() });
+            // istediðimiz kadar ICoreModule eklemek için burasý örn. newsecuritymodule , new performancemodule tarzý þeyleri virgülle ekleyebilirsin ileride
 
-            new CoreModule()
+            // ServiceTool.Create(services); geçici çözümdü bu
 
+            //içinde data tutmuyosan bunu kullanabilirsin
+            //biri constructorda productmanager isterse newleyip gönderir bu kod
+            //autofac , Ninject , CastleWindsor, StructureMap , LightInject , DryInject --> Ioc Container
+            //AOP 
+            //
+            //services.AddSingleton<IProductService,ProductManager>();
+            //services.AddSingleton<IProductDal, EfProductDal>();
 
-        }); 
 
 
             services.AddSwaggerGen(c =>
@@ -76,7 +80,7 @@ namespace WebAPI
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPI", Version = "v1" });
             });
         }
-        //authentication
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -87,15 +91,11 @@ namespace WebAPI
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPI v1"));
             }
 
-            //Middleware (Ara Uygulama)
             app.UseHttpsRedirection();
-        
-           
 
             app.UseRouting();
-
+            // middleware 
             app.UseAuthentication();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

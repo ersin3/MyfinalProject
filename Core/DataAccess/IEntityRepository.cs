@@ -8,18 +8,19 @@ using System.Threading.Tasks;
 
 namespace Core.DataAccess
 {
-    //generic constraint
-    //class  : referans tip
-    //IEntity : IEntity olabilir veya IEntity iplemente eden bir nesne olabilir
-
+    // T ye gelebilecek değerleri kısıtlamak için generic constraint ekliyoruz
+    // where T:class referans tip olabilir demek , IEntity yazarsan sadece IEntity referansı olan classları kabul eder
+    //Yani IEntity olabilir ya da IEntity referans eden bir nesne olabilir
+    // new() :  sadece newlenebilen referanslar kabul edilebilir.
     public interface IEntityRepository<T> where T:class,IEntity,new()
     {
-        
-        List<T> GetAll(Expression<Func<T,bool>>filter=null);
+        List<T> GetAll(Expression<Func<T,bool>> filter=null);
 
-        T Get(Expression<Func<T, bool>> filter);
+        T Get(Expression<Func<T,bool>> filter);
+
         void Add(T entity);
         void Update(T entity);
         void Delete(T entity);
+
     }
 }

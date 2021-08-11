@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 
 namespace Core.DataAccess.EntityFramework
 {
-   public class EfEntityRepositoryBase<TEntity,TContext>:IEntityRepository<TEntity>
+    public class EfEntityRepositoryBase<TEntity,TContext>:IEntityRepository<TEntity>
         where TEntity: class,IEntity,new()
-       where TContext : DbContext,new()
+        where TContext: DbContext,new()
     {
         public void Add(TEntity entity)
         {
-            //IDisposable pattern implementation of c#
+            // burdaki using öğe kullanıldıktan sonra hemen bellekten çıkarıyor
+            //db fazla yer yiyebilir
             using (TContext context = new TContext())
             {
                 var addedEntity = context.Entry(entity);
@@ -41,13 +42,12 @@ namespace Core.DataAccess.EntityFramework
                 return context.Set<TEntity>().SingleOrDefault(filter);
             }
         }
-
+        
         public List<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null)
         {
             using (TContext context = new TContext())
             {
-                return filter == null
-                    ? context.Set<TEntity>().ToList()
+                return filter == null ? context.Set<TEntity>().ToList()
                     : context.Set<TEntity>().Where(filter).ToList();
             }
         }
@@ -61,6 +61,5 @@ namespace Core.DataAccess.EntityFramework
                 context.SaveChanges();
             }
         }
-
     }
 }

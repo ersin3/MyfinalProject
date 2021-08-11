@@ -1,7 +1,8 @@
 ﻿using Business.Abstract;
+using Business.BusinessAspects.Autofac;
 using Business.Concrete;
 using DataAccess.Concrete.EntityFramework;
-using Entites.Concrete;
+using Entities.Concrete;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,12 +12,16 @@ using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
 {
+    [SecuredOperation("product.add,admin")]
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController] //attribute classın controller olduğunu belirtir
+                    //javada-annotation
     public class ProductsController : ControllerBase
     {
-        //Losely coupling
-        //naming convetion
+        // loosely coupled - gevşek bağımlı
+        //naming convention
+        //JS de constructordaki öğelere erişim yapabilirsin
+
         //IoC Container -- Inversion of Control
         IProductService _productService;
 
@@ -25,44 +30,63 @@ namespace WebAPI.Controllers
             _productService = productService;
         }
 
-        [HttpGet("getall")]    
+        [HttpGet("getall")]
         public IActionResult GetAll()
         {
-
-            //Swagger
-            //Dependency chain --
-           var result = _productService.GettAll();
+            // bağımlılık zinciri
+           
+            var result = _productService.GetAll();
             if (result.Success)
             {
                 return Ok(result);
             }
-            return BadRequest(result); 
+            else
+            {
+                return BadRequest(result);
+            }
+            
         }
-
 
         [HttpGet("getbyid")]
-        public IActionResult GetById(int id)
+        public IActionResult GetById(int Id)
         {
-            var result = _productService.GetById(id);
+            var result = _productService.GetById(Id);
             if (result.Success)
             {
-                return Ok(result); 
+                return Ok(result);
             }
-            return BadRequest(result);
+            else
+            {
+                return BadRequest(result);
+            }
         }
-
 
         [HttpPost("add")]
         public IActionResult Add(Product product)
         {
-            var result = _productService.add(product);
-            if (result.Success)
+
+            var result = _productService.Add(product);
+
+                if (result.Success)
             {
                 return Ok(result);
-                 
             }
-            return BadRequest(result);
+            else
+            {
+                return BadRequest(result);
+            }
         }
+        //test
+        [HttpPost("DeletById")]
+        public IActionResult DeleteById(int Id)
+        {
+            var result = _productService.Delete(Id);
 
+            if (result.Success)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
     }
 }

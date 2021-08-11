@@ -1,149 +1,174 @@
 ﻿using Business.Abstract;
-using Business.BussinessAspect.Autofac;
-using Business.Constans;
+using Business.BusinessAspects.Autofac;
+using Business.CCS;
+using Business.Constants;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Caching;
+using Core.Aspects.Autofac.Performance;
+using Core.Aspects.Autofac.Transaction;
 using Core.Aspects.Autofac.Validation;
+using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
-using Entites.Concrete;
-using Entites.DTOs;
+using Entities.Concrete;
+using Entities.DTOs;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Business.Concrete
 {
     public class ProductManager : IProductService
     {
-        IProductDal _productDal;
-        ICategoryServices _categoryServices;
-        public ProductManager(IProductDal productDal, ICategoryServices categoryServices)
+        IProductDal _ProductDal;
+        ICategoryService _CategoryService;
+        
+
+        public ProductManager(IProductDal productDal,ICategoryService categoryService)
         {
-            _productDal = productDal;
-            _categoryServices = categoryServices;
-
-
-
+            _ProductDal = productDal;
+            _CategoryService = categoryService;
+            
         }
-         
-        //Claim
-        // [SecuredOperation("admin")]
+        //Claim 
+        // 1234 olarak girilen şifreyi  ASDDSAFJASFA olarak tutmaya hashing denir.
+        [SecuredOperation("product.add,admin")] //authorization    sıkıntıları var
         [ValidationAspect(typeof(ProductValidator))]
         [CacheRemoveAspect("IProductService.Get")]
-        public IResults add(Product product)
+        public IResult Add(Product product)
         {
-            //aynı isimde product eklenemz 
-            IResults result = BusinessRules.Run(
-                CheckIfProductNameExists(product.ProductName),
-                CheckIfProductCountOfCategoryCorrect(product.CategoryId),
-                CheckIfCategoryLimmitExceded()
+            //validation ve business code aynı şey değildir
+            //validation-doğrulama 
 
+            //Eski validation yöntemimiz direk attribute olarak yapacaksın bunları
+            //ValidationTool.Validate(new ProductValidator(), product);
+
+            //if (product.ProductName.Length<2)
+            //{
+            //    // magic strings
+            //    return new ErrorResult(Messages.ProductNameInvalid);
+            //}  you must do this in validations class not here!
+
+            //bir kategoride en fazla 10 ürün olabilir test. aşağıda method olarak ekledik
+            // this method check business rules
+            IResult result = BusinessRules.Run(
+                CheckIfProductCountOfCategoryCorrect(product.CategoryId),
+                CheckProductNameDifference(product.ProductName),
+                CheckCategoryCount()
                 );
+
             if (result != null)
             {
                 return result;
             }
-            _productDal.Add(product);
 
-            return new SuccessResult(Messages.ProductAdded);
-
+                    _ProductDal.Add(product);
+                    return new SuccessResult(Messages.ProductAdded);
         }
 
-        public IDataResult<List<Product>> GetAllByCategory(int id)
+        [CacheAspect]   //key , value
+        public IDataResult<List<Product>> GetAll()
         {
-            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.CategoryId == id));
+            //business codes - check authorization - if codes etc.
+            //this method shoul be in validations. It is here for an example you can delete it.
+            if (DateTime.Now.Hour == 3)
+            {
+                return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
+            }
+
+            return new SuccessDataResult<List<Product>>(_ProductDal.GetAll(), Messages.ProductsListed);
         }
 
+        public IDataResult<List<Product>> GetAllByCategoryId(int id)
+        {
+            return new SuccessDataResult<List<Product>>(_ProductDal.GetAll(p => p.CategoryId == id));
+            
+        }
         [CacheAspect]
+        [PerformanceAspect(5)]
         public IDataResult<Product> GetById(int productId)
         {
-            return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == productId));
+            return new SuccessDataResult<Product>(_ProductDal.Get(p => p.Id == productId),Messages.GetByIdListed);
         }
 
         public IDataResult<List<Product>> GetByUnitPrice(decimal min, decimal max)
         {
-            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.UnitPrice >= min && p.UnitPrice <= max));
+            return new SuccessDataResult<List<Product>>(_ProductDal.GetAll(p => p.UnitPrice >= min && p.UnitPrice <= max));
         }
 
-        public IDataResult<List<ProductDetailDto>> GetProductDetail()
+        public IDataResult<List<ProductDetailDto>> GetProductDetails()
         {
 
-            return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetail());
+            return new SuccessDataResult<List<ProductDetailDto>>(_ProductDal.GetProductDetails());
         }
 
-        [CacheAspect] //key value
-        //[PerformanceAspect(5)]
-        public IDataResult<List<Product>> GettAll()
-        {
-            if (DateTime.Now.Hour == 20)
-            {
-                return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
-            }
-            //İş Kodları
-            // if(Yetkisi var mı similasyon yap)
-            return new SuccessDataResult<List<Product>>(_productDal.GetAll(), Messages.ProductListed);
-        }
-       
         [ValidationAspect(typeof(ProductValidator))]
-        [CacheRemoveAspect("IProductService.Get")]
-        public IResults Update(Product product)
+        [CacheRemoveAspect("IProductService.Get")] //bellekte IProductService.Get metotlarındaki tüm cacheleri uçurur
+        public IResult Update(Product product)
         {
-            if (CheckIfProductCountOfCategoryCorrect(product.CategoryId).Success)
-            {
-                _productDal.Add(product);
-
-                return new SuccessResult(Messages.ProductAdded);
-            }
             throw new NotImplementedException();
         }
 
-
-        private IResults CheckIfProductCountOfCategoryCorrect(int categoryId)
-        {
-            //Select count(*) from products where categoryId=1
-            var result = _productDal.GetAll(p => p.CategoryId == categoryId).Count();
-            if (result >= 15)
+        private IResult CheckIfProductCountOfCategoryCorrect(int categoryId)
+        {   // select (*) from products where product.CategoryId == categoryId
+            var result = _ProductDal.GetAll(p => p.CategoryId == categoryId).Count();
+            if (result >= 10)
             {
-                return new ErrorResult(Messages.ProductCountOfCategoryError);
+                return new ErrorResult(Messages.ProductCountExceedError);
             }
-            return new SuccessResult();
+            else
+            {
+                return new SuccessResult();
+            }
         }
 
-        private IResults CheckIfProductNameExists(string productName)
+        private IResult CheckProductNameDifference(string productName)
         {
-
-            var result = _productDal.GetAll(p => p.ProductName == productName).Any();
+            var result = _ProductDal.GetAll(p => p.ProductName == productName).Any();
             if (result)
             {
-                return new ErrorResult(Messages.ProductNameAlreadyExists);
+                return new ErrorResult(Messages.ProductNameIsNotValid);
             }
-            return new SuccessResult();
+            else
+            {
+                return new SuccessResult();
+            }
         }
 
-        private IResults CheckIfCategoryLimmitExceded()
+        private IResult CheckCategoryCount()
         {
-            var result = _categoryServices.GetAll();
+            var result = _CategoryService.GetAll();
+
             if (result.Data.Count > 15)
             {
-                return new ErrorResult(Messages.CategoryLimmitExceded);
+                return new ErrorResult(Messages.CategoryLimitExceded);
             }
-            return new SuccessResult();
+            else
+            {
+                return new SuccessResult();
+            }
         }
-
-       // [TransactionScopeAspect]
-        public IResults AddTransactionalTest(Product product)
+        [TransactionScopeAspect]
+        public IResult AddTransactionalTest(Product procduct)
         {
-            add(product);
-            if (product.UnitPrice<10)
+            Add(procduct);
+            if (procduct.UnitPrice < 10)
             {
                 throw new Exception("");
             }
-           
-            add(product);
+            Add(procduct);
 
             return null;
+        }
+        //test
+        public IResult Delete(int productId)
+        {
+            _ProductDal.Delete(_ProductDal.Get(p => p.Id == productId));
+            return new SuccessResult();
         }
     }
 }

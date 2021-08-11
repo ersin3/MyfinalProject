@@ -25,7 +25,7 @@ namespace Business.DependencyResolves.Autofac
             builder.RegisterType<ProductManager>().As<IProductService>().SingleInstance();
             builder.RegisterType<EfProductDal>().As<IProductDal>().SingleInstance();
 
-            builder.RegisterType<CategoryManager>().As<ICategoryServices>().SingleInstance();
+            builder.RegisterType<CategoryManager>().As<ICategoryService>().SingleInstance();
             builder.RegisterType<EfCategoryDal>().As<ICategoryDal>().SingleInstance();
 
             builder.RegisterType<UserManager>().As<IUserService>();
@@ -33,6 +33,9 @@ namespace Business.DependencyResolves.Autofac
 
             builder.RegisterType<AuthManager>().As<IAuthService>();
             builder.RegisterType<JwtHelper>().As<ITokenHelper>();
+
+            builder.RegisterType<SubProductManager>().As<ISubProductService>().SingleInstance();
+            builder.RegisterType<EfSubProductDal>().As<ISubProductDal>().SingleInstance();
 
             //builder.RegisterType<HttpContextAccessor>().As<IHttpContextAccessor>();
 

@@ -1,26 +1,38 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Core.Utilities.Security.Hashing
 {
-    //Araç classın arayüzü açık kalsa da sorun olmaz
     public class HashingHelper
     {
-        public static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        // a method that hashes and salts password.
+        public static void CreatePasswordHash(
+            string password,
+            out byte[] passwordHash,
+            out byte[] passwordSalt)
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512())
             {
                 passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password)); // password un byte değerini istediğinden ona döüştürüyoruz.
             }
         }
-        public static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        // a method that compares hash
+        public static bool VerifyPasswordHash(
+            string password,
+            byte[] passwordHash,
+            byte[] passwordSalt)
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt))
             {
-                var coumputedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                for (int i = 0; i < coumputedHash.Length ; i++)
+                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+
+                for (int i = 0; i < computedHash.Length; i++)
                 {
-                    if (coumputedHash[i]!=passwordHash[i])
+                    if (computedHash[i] != passwordHash[i])
                     {
                         return false;
                     }
@@ -28,6 +40,5 @@ namespace Core.Utilities.Security.Hashing
             }
             return true;
         }
-        
     }
 }

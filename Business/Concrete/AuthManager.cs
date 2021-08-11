@@ -1,10 +1,15 @@
 ﻿using Business.Abstract;
-using Business.Constans;
+using Business.Constants;
 using Core.Entities.Concrete;
 using Core.Utilities.Results;
 using Core.Utilities.Security.Hashing;
 using Core.Utilities.Security.JWT;
-using Entites.DTOs;
+using Entities.DTOs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Business.Concrete
 {
@@ -52,7 +57,7 @@ namespace Business.Concrete
             return new SuccessDataResult<User>(userToCheck, Messages.SuccessfulLogin);
         }
 
-        public IResults UserExists(string email)
+        public IResult UserExists(string email)
         {
             if (_userService.GetByMail(email) != null)
             {

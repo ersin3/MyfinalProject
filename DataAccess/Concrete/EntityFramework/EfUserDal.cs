@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Concrete.EntityFramework
 {
-    public class EfUserDal : EfEntityRepositoryBase<User, NorthwindContext>, IUserDal
+    public class EfUserDal : EfEntityRepositoryBase<User, NorthWindContext>, IUserDal
     {
         public List<OperationClaim> GetClaims(User user)
         {
-            using (var context = new NorthwindContext())
+            using (var context = new NorthWindContext())
             {
                 var result = from operationClaim in context.OperationClaims
                              join userOperationClaim in context.UserOperationClaims

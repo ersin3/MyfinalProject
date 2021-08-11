@@ -1,6 +1,6 @@
 ﻿using Core.Entities.Concrete;
 using Core.Extensions;
-using Core.Utilities.Security.encryption;
+using Core.Utilities.Security.Encryption;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -53,12 +53,11 @@ namespace Core.Utilities.Security.JWT
             );
             return jwt;
         }
-        // claimlerin yeni method ekleme.
+        // claimlerin oluşturulması
         //JWT de kullanıcıya ait bilgiler
         private IEnumerable<Claim> SetClaims(User user, List<OperationClaim> operationClaims)
         {
             var claims = new List<Claim>();
-
             claims.AddNameIdentifier(user.Id.ToString());
             claims.AddEmail(user.Email);
             claims.AddName($"{user.FirstName} {user.LastName}");

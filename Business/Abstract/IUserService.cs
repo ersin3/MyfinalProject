@@ -13,5 +13,4 @@ namespace Business.Abstract
         void Add(User user);
         User GetByMail(string email);
     }
-
 }

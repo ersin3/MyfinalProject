@@ -1,47 +1,61 @@
-﻿using System;
-using Business.Concrete;
+﻿using Business.Concrete;
 using DataAccess.Concrete.EntityFramework;
 using DataAccess.Concrete.InMemory;
+using System;
 
 namespace ConsoleUI
 {
-    //SOLID
     class Program
     {
-
         static void Main(string[] args)
         {
-           
-            // NewMethod();
-            ProductTest2();
-        }
+            ProductManager productManager = new ProductManager(new EfProductDal(),
+                new CategoryManager(new EfCategoryDal()));
 
-        private static void NewMethod()
-        {
             CategoryManager categoryManager = new CategoryManager(new EfCategoryDal());
-            foreach (var category in categoryManager.GetAll().Data)
-            {
-                Console.WriteLine(category.CategoryName);
-            }
+
+            // ProductTest(productManager);
+
+            //CategoryTest(categoryManager);
+
+            viewTest(productManager);
+
         }
 
-       
-
-        private static void ProductTest2()
+        private static void viewTest(ProductManager productManager)
         {
-            ProductManager productManager = new ProductManager(new EfProductDal(),new CategoryManager(new EfCategoryDal()));
-            var result = productManager.GetProductDetail(); 
-            if (result.Success==true)
+            var result = productManager.GetProductDetails();
+
+            if (result.Success == true)
             {
-                foreach (var product in result.Data)
-                {
-                    Console.WriteLine(product.ProductName + "/" + product.CategoryName);
+                foreach(var view in result.Data)
+            {   // biraz çorba ama anlarsın
+                    Console.WriteLine("product id: " + view.ProductId +
+                        "\t" + view.ProductName +
+                        "\t in stock: " + view.UnitsInStock +
+                        "\t category name: " + view.CategoryName);
                 }
-            }else
+            }
+            else
             {
                 Console.WriteLine(result.Message);
             }
-           
+        }
+
+        private static void CategoryTest(CategoryManager categoryManager)
+        {
+            foreach (var category in categoryManager.GetAll().Data)
+            {
+                Console.WriteLine(category.Id + " " + category.CategoryName);
+            }
+        }
+
+        private static void ProductTest(ProductManager productManager)
+        {
+            foreach (var product in productManager.GetByUnitPrice(50, 200).Data)
+            {
+                Console.WriteLine(product.CategoryId + "  " + product.ProductName + " \t " + product.UnitPrice + " $");
+            }
         }
     }
 }

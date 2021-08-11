@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace Core.Utilities.Results
 {
-    public class Result : IResults
+    public class Result : IResult
     {
-        
+        public bool Success { get; }
+
+        public string Message { get; }
 
         public Result(bool success, string message):this(success)
         {
+            
             Message = message;
         }
 
@@ -19,9 +22,5 @@ namespace Core.Utilities.Results
         {
             Success = success;
         }
-
-        public bool Success { get; }
-
-        public string Message { get; }
     }
 }
