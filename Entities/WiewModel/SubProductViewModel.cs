@@ -9,7 +9,7 @@ namespace Entities.WiewModel
 {
     namespace Entities.WiewModel
     {
-        public class ProductViewModel:IWiew
+        public class SubProductViewModel:IWiew
         {
             public int Id { get; set; }
             public string ProductName { get; set; }
