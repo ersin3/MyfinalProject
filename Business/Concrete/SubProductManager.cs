@@ -15,10 +15,12 @@ namespace Business.Concrete
     public class SubProductManager : ISubProductService
     {
         ISubProductDal _SubProductDal;
+        IProductDal _ProductDal;
 
-        public SubProductManager(ISubProductDal subProductDal)
+        public SubProductManager(ISubProductDal subProductDal,IProductDal productDal)
         {
             _SubProductDal = subProductDal;
+            _ProductDal = productDal;
         }
 
         public IResult Add(SubProduct subproduct)
@@ -30,6 +32,15 @@ namespace Business.Concrete
         public IDataResult<List<SubProduct>> GetAll()
         {
             return new SuccessDataResult<List<SubProduct>>(_SubProductDal.GetAll(), Messages.SubProductsListed);
+        }
+
+        public IDataResult<List<SubProduct>> GetById(int Id)
+        {
+            return new SuccessDataResult<List<SubProduct>>(
+                _SubProductDal.GetAll(p=> p.Product.Id == Id),
+                Messages.ProductsListed
+                
+                );
         }
     }
 }

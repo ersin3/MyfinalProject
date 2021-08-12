@@ -59,5 +59,19 @@ namespace WebAPI.Controllers
             }
         }
 
+        [HttpGet("getSubProductsById")]
+        public IActionResult GetById(int Id)
+        {
+            var result = _subproductservice.GetById(Id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(result);
+            }
+        }
+
     }
 }
